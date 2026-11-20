@@ -55,7 +55,8 @@ class Configuracao(ConfiguracaoBanco):
     app_auth_refresh_expiracao_dias: int = Field(default=7, gt=0)
 
     seed_admin_senha: SecretStr | None = None
-    seed_usuario_senha: SecretStr | None = None
+    seed_usuario_senha: SecretStr | None = None  # perfil OPERADOR_COMERCIAL (RF-BE-002)
+    seed_financeiro_senha: SecretStr | None = None  # perfil OPERADOR_FINANCEIRO (RF-BE-002)
 
     @field_validator("jwt_secret")
     @classmethod
@@ -85,14 +86,17 @@ class Configuracao(ConfiguracaoBanco):
         if not self.app_auth_cookie_secure and self.app_env != "dev":
             raise ValueError("APP_AUTH_COOKIE_SECURE=false só é permitido com APP_ENV=dev")
         if self.app_env == "dev":
-            if not (self.seed_admin_senha and self.seed_usuario_senha):
-                raise ValueError("SEED_ADMIN_SENHA e SEED_USUARIO_SENHA são obrigatórias em dev")
-            # Mesmo limite do login (RN-11): uma senha de seed fora dele criaria um usuário
-            # que nunca consegue entrar.
-            for nome, senha in (
+            senhas_de_seed = (
                 ("SEED_ADMIN_SENHA", self.seed_admin_senha),
                 ("SEED_USUARIO_SENHA", self.seed_usuario_senha),
-            ):
+                ("SEED_FINANCEIRO_SENHA", self.seed_financeiro_senha),
+            )
+            faltando = [nome for nome, senha in senhas_de_seed if not senha]
+            if faltando:
+                raise ValueError(f"{', '.join(faltando)} obrigatória(s) em dev")
+            # Mesmo limite do login (RN-11): uma senha de seed fora dele criaria um usuário
+            # que nunca consegue entrar.
+            for nome, senha in senhas_de_seed:
                 if not 8 <= len(senha.get_secret_value()) <= 72:
                     raise ValueError(f"{nome} deve ter entre 8 e 72 caracteres")
         return self

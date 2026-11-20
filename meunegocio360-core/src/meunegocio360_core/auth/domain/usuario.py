@@ -3,12 +3,11 @@
 import math
 import uuid
 from datetime import datetime, timedelta
-from enum import StrEnum
 
+# Os perfis são compartilhados pela autorização de todas as features (RF-BE-002, RN-07).
+from meunegocio360_core.shared.dominio import Perfil
 
-class Perfil(StrEnum):
-    ADMIN = "ADMIN"
-    USUARIO = "USUARIO"
+__all__ = ["Perfil", "Usuario"]
 
 
 class Usuario:

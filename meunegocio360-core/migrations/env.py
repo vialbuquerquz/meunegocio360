@@ -5,7 +5,9 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import create_engine
 
-import meunegocio360_core.auth.infra.orm  # noqa: F401 - registra as tabelas no metadata
+# Os módulos orm registram as tabelas no metadata (usado pelo ``alembic check``).
+import meunegocio360_core.auth.infra.orm
+import meunegocio360_core.empresa.infra.orm  # noqa: F401
 from meunegocio360_core.shared.banco import metadata
 from meunegocio360_core.shared.config import carregar_configuracao_banco
 

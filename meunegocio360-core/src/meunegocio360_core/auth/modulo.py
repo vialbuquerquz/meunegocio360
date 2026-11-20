@@ -41,25 +41,35 @@ class ModuloAuth:
     _contexto: ContextoAuth
 
     def semear_usuarios_de_desenvolvimento(self, config: Configuracao) -> None:
-        if config.app_env != "dev" or not (config.seed_admin_senha and config.seed_usuario_senha):
+        """RN-08 do RF-BE-002: um usuário por perfil, senhas do ambiente e nenhuma empresa."""
+        senhas = (
+            config.seed_admin_senha,
+            config.seed_usuario_senha,
+            config.seed_financeiro_senha,
+        )
+        if config.app_env != "dev" or not all(senhas):
             return
+        admin, comercial, financeiro = (senha.get_secret_value() for senha in senhas)
         SemearUsuariosDeDesenvolvimento(
             self._contexto.nova_unidade_de_trabalho,
             self._contexto.codificador,
             self._contexto.relogio,
         ).executar(
             [
+                UsuarioDeSeed("Administrador", "admin@meunegocio360.com.br", Perfil.ADMIN, admin),
+                # Mesmo e-mail do antigo perfil USUARIO: em bancos existentes a migration 0003
+                # já converteu esse usuário, e o seed não o duplica.
                 UsuarioDeSeed(
-                    "Administrador",
-                    "admin@meunegocio360.com.br",
-                    Perfil.ADMIN,
-                    config.seed_admin_senha.get_secret_value(),
+                    "Operador Comercial",
+                    "usuario@meunegocio360.com.br",
+                    Perfil.OPERADOR_COMERCIAL,
+                    comercial,
                 ),
                 UsuarioDeSeed(
-                    "Usuário",
-                    "usuario@meunegocio360.com.br",
-                    Perfil.USUARIO,
-                    config.seed_usuario_senha.get_secret_value(),
+                    "Operador Financeiro",
+                    "financeiro@meunegocio360.com.br",
+                    Perfil.OPERADOR_FINANCEIRO,
+                    financeiro,
                 ),
             ]
         )

@@ -19,16 +19,12 @@ from meunegocio360_core.auth.api.dependencias import (
     usuario_autenticado,
     verificar_origem,
 )
-from meunegocio360_core.auth.api.schemas import (
-    LoginRequest,
-    ProblemaResponse,
-    SessaoResponse,
-    UsuarioResponse,
-)
+from meunegocio360_core.auth.api.schemas import LoginRequest, SessaoResponse, UsuarioResponse
 from meunegocio360_core.auth.application.autenticar import Autenticar
 from meunegocio360_core.auth.application.encerrar_sessao import EncerrarSessao
 from meunegocio360_core.auth.application.obter_usuario_atual import ObterUsuarioAtual
 from meunegocio360_core.auth.application.renovar_sessao import RenovarSessao
+from meunegocio360_core.shared.documentacao import exemplo_de_erro
 from meunegocio360_core.shared.seguranca import Principal
 
 PREFIXO = "/api/v1/auth"
@@ -39,20 +35,7 @@ CookieRefresh = Annotated[str | None, Cookie(alias=cookies.NOME, include_in_sche
 
 
 def _erro(status_http: int, code: str, descricao: str) -> dict[str, Any]:
-    exemplo = {
-        "type": "https://meunegocio360.com.br/problemas/...",
-        "title": "...",
-        "status": status_http,
-        "detail": "...",
-        "instance": "/api/v1/auth/...",
-        "code": code,
-        "traceId": "9f1c2e7a-0b6c-4a4b-9a64-2d0f1c3f6b11",
-    }
-    return {
-        "model": ProblemaResponse,
-        "description": descricao,
-        "content": {"application/problem+json": {"example": exemplo}},
-    }
+    return exemplo_de_erro(status_http, code, descricao, f"{PREFIXO}/...")
 
 
 @router.post(

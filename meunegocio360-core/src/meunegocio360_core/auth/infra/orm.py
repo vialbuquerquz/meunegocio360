@@ -53,7 +53,9 @@ tabela_usuario = Table(
     _instante("criado_em"),
     _instante("atualizado_em"),
     Column("versao", BigInteger, nullable=False),
-    CheckConstraint("perfil IN ('ADMIN', 'USUARIO')", name="perfil_valido"),
+    CheckConstraint(
+        "perfil IN ('ADMIN', 'OPERADOR_COMERCIAL', 'OPERADOR_FINANCEIRO')", name="perfil_valido"
+    ),
     CheckConstraint("tentativas_falhas >= 0", name="tentativas_nao_negativas"),
 )
 

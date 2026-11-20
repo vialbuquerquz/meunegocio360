@@ -16,7 +16,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.responses import JSONResponse, Response
 
 from meunegocio360_core.shared.correlacao import CABECALHO, request_id_atual
-from meunegocio360_core.shared.dominio import ErroDeNegocio
+from meunegocio360_core.shared.dominio import ErroDeNegocio, VersaoDesatualizadaError
 from meunegocio360_core.shared.seguranca import aplicar_cabecalhos_seguranca
 
 TIPO_BASE = "https://meunegocio360.com.br/problemas/"
@@ -73,6 +73,19 @@ _traducoes: dict[type[ErroDeNegocio], TradutorDeErro] = {}
 
 def registrar_traducao(tipo: type[ErroDeNegocio], tradutor: TradutorDeErro) -> None:
     _traducoes[tipo] = tradutor
+
+
+# Erros de negócio genéricos, usados por todas as features.
+registrar_traducao(
+    VersaoDesatualizadaError,
+    lambda _: Problema(
+        409,
+        "VERSION_CONFLICT",
+        "Versão desatualizada",
+        "O registro foi alterado por outra operação. Recarregue os dados e tente novamente.",
+        "conflito-de-versao",
+    ),
+)
 
 
 def _traduzir(erro: ErroDeNegocio) -> Problema:

@@ -12,6 +12,8 @@ from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
 from meunegocio360_core.auth.modulo import configurar_auth
+from meunegocio360_core.empresa.modulo import TAG_OPENAPI as TAG_EMPRESA
+from meunegocio360_core.empresa.modulo import configurar_empresa
 from meunegocio360_core.shared import saude
 from meunegocio360_core.shared.banco import criar_fabrica_de_sessoes
 from meunegocio360_core.shared.config import Configuracao, carregar_configuracao
@@ -53,11 +55,14 @@ def create_app(config: Configuracao | None = None) -> FastAPI:
         openapi_url=None if config.producao else OPENAPI,
         redoc_url=None,
         swagger_ui_oauth2_redirect_url=None,
+        openapi_tags=[TAG_EMPRESA],
         lifespan=ciclo_de_vida,
     )
     app.state.fabrica_de_sessoes = fabrica_de_sessoes
 
-    modulo_auth = configurar_auth(app, config, fabrica_de_sessoes, RelogioDoSistema())
+    relogio = RelogioDoSistema()
+    modulo_auth = configurar_auth(app, config, fabrica_de_sessoes, relogio)
+    configurar_empresa(app, fabrica_de_sessoes, relogio)
     app.include_router(saude.router)
     registrar_tratadores(app, producao=config.producao)
 

@@ -73,24 +73,3 @@ class SessaoResponse(_ModeloApi):
             expires_in=sessao.expira_em_segundos,
             usuario=UsuarioResponse.de(sessao.usuario),
         )
-
-
-# --------------------------------------------------------------------------- documentação
-
-
-class ErroDeCampo(BaseModel):
-    field: str
-    message: str
-
-
-class ProblemaResponse(BaseModel):
-    """Formato ``application/problem+json`` (RNF-BE-14)."""
-
-    type: str
-    title: str
-    status: int
-    detail: str
-    instance: str
-    code: str
-    traceId: str | None = None  # noqa: N815 - nome definido pelo contrato
-    errors: list[ErroDeCampo] | None = None
